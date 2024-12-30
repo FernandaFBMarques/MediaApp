@@ -1,16 +1,16 @@
 package com.example.videoeditor
 
 import android.content.Intent
-import android.media.browse.MediaBrowser
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.media3.transformer.TransformationRequest
-import androidx.media3.transformer.Transformer
+import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.transformer.Transformer
 import java.io.File
 
 class MainActivity : ComponentActivity() {
@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun pickVideo() {
-        val pickVideoIntent = Intent(Intent.ACTION_PICK).apply{
+        val pickVideoIntent = Intent(Intent.ACTION_PICK).apply {
             type = "video/*"
         }
         videoPickerLauncher.launch(pickVideoIntent)
@@ -52,26 +52,23 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @OptIn(UnstableApi::class)
     private fun transformVideo() {
         selectVideoUri?.let { inputUri ->
 
-            val mediaItem = MediaBrowser.MediaItem.fromUri(inputUri)
-
+            val mediaItem = MediaItem.fromUri(inputUri)
             val outputDir = cacheDir
-            val outputFile = File(outputDir, "transfomed_video.mp4")
+            val outputFile = File(outputDir, "transformed_video.mp4")
             outputFilePath = outputFile.absolutePath
 
             val transformer = Transformer.Builder(this)
-                .setTransformationRequest(
-                    TransformationRequest.Builder()
-                        .build()
-            )
-            .build()
+                .setAudioMimeType("audio/mp4a-latm")
+                .setVideoMimeType("video/avc")
+                .build()
 
-            transformer.startTransformation( mediaItem, outputFilePath)
+            transformer.start(mediaItem, outputFilePath)
 
-            outputPathText.text = "Output File Path: $outputFilePath"
+            outputPathText.text = getString(R.string.output_file_path, outputFilePath)
         }
     }
-
 }

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">VideoEditor</string>
+    <string name="output_file_path">Output File Path: %1$s</string>
 </resources>
