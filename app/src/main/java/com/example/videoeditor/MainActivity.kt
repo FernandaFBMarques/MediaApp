@@ -16,6 +16,7 @@ import java.io.File
 class MainActivity : ComponentActivity() {
 
     private lateinit var pickVideoButton: Button
+    private lateinit var useSampleVideoButton: Button
     private lateinit var startTransformButton: Button
     private lateinit var outputPathText: TextView
 
@@ -28,9 +29,11 @@ class MainActivity : ComponentActivity() {
 
         pickVideoButton = findViewById(R.id.pickVideoButton)
         startTransformButton = findViewById(R.id.startTransformButton)
+        useSampleVideoButton = findViewById(R.id.useSampleVideoButton)
         outputPathText = findViewById(R.id.outputPathText)
 
         pickVideoButton.setOnClickListener { pickVideo() }
+        useSampleVideoButton.setOnClickListener{ useSampleVideo() }
         startTransformButton.setOnClickListener { transformVideo() }
     }
 
@@ -52,6 +55,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun useSampleVideo() {
+        val videoUri = Uri.parse("android.resource://${packageName}/raw/sample_video")
+        selectVideoUri = videoUri
+        startTransformButton.isEnabled = true
+    }
+
     @OptIn(UnstableApi::class)
     private fun transformVideo() {
         selectVideoUri?.let { inputUri ->
@@ -66,9 +75,14 @@ class MainActivity : ComponentActivity() {
                 .setVideoMimeType("video/avc")
                 .build()
 
-            transformer.start(mediaItem, outputFilePath)
-
-            outputPathText.text = getString(R.string.output_file_path, outputFilePath)
+            try {
+                transformer.start(mediaItem, outputFilePath)
+                outputPathText.text = getString(R.string.output_file_path, outputFilePath)
+            } catch (e: Exception) {
+                outputPathText.text = getString(R.string.error_transformation_failed, e.message)
+            }
+        } ?: run {
+            outputPathText.text = getString(R.string.error_no_video_selected)
         }
     }
 }

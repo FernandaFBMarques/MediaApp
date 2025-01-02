@@ -14,6 +14,12 @@
         android:text="Pick Video" />
 
     <Button
+        android:id="@+id/useSampleVideoButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Use Sample Video" />
+
+    <Button
         android:id="@+id/startTransformButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
