@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">VideoEditor</string>
     <string name="output_file_path">Output File Path: %1$s</string>
+    <string name="transformation_completed">Transformation completed: %1$s</string>
+    <string name="transformation_failed">Transformation failed: %1$s</string>
+    <string name="transformation_progress">Progress: %1$d%%</string>
     <string name="error_transformation_failed">Transformation failed: %1$s</string>
     <string name="error_no_video_selected">No video selected. Please pick a video first.</string>
 </resources>

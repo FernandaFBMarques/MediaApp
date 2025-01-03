@@ -9,7 +9,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MimeTypes
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.transformer.Composition
+import androidx.media3.transformer.ExportException
+import androidx.media3.transformer.ExportResult
 import androidx.media3.transformer.Transformer
 import java.io.File
 
@@ -61,6 +65,15 @@ class MainActivity : ComponentActivity() {
         startTransformButton.isEnabled = true
     }
 
+    private fun playOutput() {
+        val outputUri = Uri.fromFile(File(outputFilePath))
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(outputUri, "video/*")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        startActivity(intent)
+    }
+
     @OptIn(UnstableApi::class)
     private fun transformVideo() {
         selectVideoUri?.let { inputUri ->
@@ -70,9 +83,28 @@ class MainActivity : ComponentActivity() {
             val outputFile = File(outputDir, "transformed_video.mp4")
             outputFilePath = outputFile.absolutePath
 
+            val transformerListener: Transformer.Listener =
+                object : Transformer.Listener {
+                    override fun onCompleted(composition: Composition, result: ExportResult) {
+                        runOnUiThread {
+                            outputPathText.text = getString(R.string.transformation_completed, outputFilePath)
+                            playOutput()
+                        }
+                    }
+
+                    override fun onError(composition: Composition,
+                                         result: ExportResult,
+                                         exception: ExportException
+                    ) {
+                        runOnUiThread {
+                            outputPathText.text = getString(R.string.error_transformation_failed, exception.message)
+                        }
+                    }
+                }
+
             val transformer = Transformer.Builder(this)
-                .setAudioMimeType("audio/mp4a-latm")
-                .setVideoMimeType("video/avc")
+                .setVideoMimeType(MimeTypes.VIDEO_H265)
+                .addListener(transformerListener)
                 .build()
 
             try {
